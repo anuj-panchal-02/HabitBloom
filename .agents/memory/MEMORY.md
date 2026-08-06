@@ -1,0 +1,1 @@
+- [HabitBloom architecture](habitbloom-architecture.md) — local-only app, no backend/API; don't add OpenAPI routes unless user explicitly asks for sync/accounts.

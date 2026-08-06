@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "HabitBloom"
+description = "A mobile-first habit tracking app inspired by Atomic Habits principles. Helps users build lasting habits through identity-based framing, tiny habits, and consistent daily tracking rather than streak-obsessed pressure. Includes a dashboard, habit management, statistics, a calendar heatmap, daily reflections, daily habit tips, and a virtual forest that grows with consistency. No accounts — all data stored locally in the browser."
+version = "1.0.0"
+id = "artifacts/habitbloom"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20347
+
+[services.development]
+run = "pnpm --filter @workspace/habitbloom run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/habitbloom", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/habitbloom/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20347"
+BASE_PATH = "/"

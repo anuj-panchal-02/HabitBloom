@@ -1,0 +1,551 @@
+# Product Requirements Document (PRD)
+
+## Project: HabitBloom (Working Title)
+
+**Version:** 1.0
+**Status:** Draft
+**Product Owner:** You
+**Technical Co-founder:** ChatGPT
+
+---
+
+# 1. Product Vision
+
+HabitBloom is a **mobile-first Progressive Web App (PWA)** inspired by the principles of *Atomic Habits*. It helps users build lasting habits by making habit tracking simple, motivating, and enjoyable.
+
+Unlike traditional habit trackers that focus only on streaks, HabitBloom emphasizes **identity-based habits**, **tiny habits**, and **consistent progress**.
+
+The goal is not to complete tasks.
+
+The goal is to become the person the user wants to be.
+
+---
+
+# 2. Problem Statement
+
+People start habits with motivation but fail because:
+
+* Goals are too ambitious.
+* Habit trackers become boring.
+* Missing one day destroys motivation.
+* Users don't understand why habits matter.
+* Most apps are cluttered with unnecessary features.
+
+HabitBloom solves this by encouraging small, sustainable actions and celebrating consistency over perfection.
+
+---
+
+# 3. Goals
+
+### Primary Goals
+
+* Build habits consistently.
+* Make tracking effortless.
+* Encourage identity-based growth.
+* Keep users engaged without overwhelming them.
+
+### Success Metrics
+
+* User opens app daily.
+* User completes at least one habit daily.
+* Weekly completion rate increases over time.
+* Users maintain habits for 30+ days.
+
+---
+
+# 4. Target Audience
+
+### Primary
+
+* Students
+* Professionals
+* Fitness enthusiasts
+* Anyone building routines
+
+### Secondary
+
+People trying to:
+
+* Read more
+* Exercise
+* Sleep earlier
+* Meditate
+* Drink water
+* Learn a skill
+* Quit bad habits
+
+---
+
+# 5. Product Scope (V1)
+
+## Dashboard
+
+### Purpose
+
+The dashboard provides everything needed for today.
+
+### Components
+
+* Greeting
+* Current streak
+* Today's progress
+* Habit list
+* Quick complete action
+* Add Habit button
+
+---
+
+## Habit Management
+
+Users can:
+
+* Create habit
+* Edit habit
+* Archive habit
+* Delete habit
+
+Each habit contains:
+
+| Field           | Required |
+| --------------- | -------- |
+| Name            | Yes      |
+| Icon            | Yes      |
+| Color           | Yes      |
+| Tiny Habit      | Yes      |
+| Identity Goal   | Yes      |
+| Why             | Optional |
+| Repeat Schedule | Yes      |
+| Reminder Time   | Optional |
+
+Example
+
+```text
+Habit
+
+Read Books
+
+Identity
+
+Become a Reader
+
+Tiny Habit
+
+Read 1 Page
+
+Why
+
+Knowledge compounds every day.
+```
+
+---
+
+# Daily Tracking
+
+Users can mark:
+
+* Complete
+* Skip
+* Missed
+
+Completion requires only one tap.
+
+---
+
+# Statistics
+
+Display
+
+* Current streak
+* Longest streak
+* Completion %
+* Weekly completion
+* Monthly completion
+* Total habits completed
+
+---
+
+# Calendar
+
+GitHub-style heatmap.
+
+Selecting a day displays:
+
+* Completed habits
+* Missed habits
+* Notes
+
+---
+
+# Reflection
+
+One optional question daily.
+
+Examples
+
+> What made today easier?
+
+> What habit felt hardest?
+
+> What can tomorrow's version of you do differently?
+
+---
+
+# Atomic Habit Guidance
+
+Display one original tip each day inspired by *Atomic Habits* (without reproducing the book's text).
+
+Example themes:
+
+* Start small.
+* Stack habits.
+* Reduce friction.
+* Reward consistency.
+* Focus on identity.
+
+---
+
+# Forest Progress
+
+Consistency grows a virtual forest.
+
+Levels
+
+```text
+🌱 Seed
+
+↓
+
+🌿 Sprout
+
+↓
+
+🪴 Plant
+
+↓
+
+🌳 Tree
+
+↓
+
+🌲 Forest
+
+↓
+
+🏞 Thriving Forest
+```
+
+No virtual currency or unnecessary rewards.
+
+---
+
+# Settings
+
+Users can:
+
+* Change theme
+* Enable reminders
+* Export data
+* Import backup
+* Reset all data
+
+---
+
+# 6. Out of Scope (V1)
+
+Not included:
+
+* Login
+* Accounts
+* Cloud sync
+* AI coach
+* Friends
+* Challenges
+* Teams
+* Marketplace
+* Chat
+* Ads
+* Premium subscription
+* Wearables
+* Smartwatch support
+
+---
+
+# 7. Functional Requirements
+
+## Dashboard
+
+### User Story
+
+As a user
+
+I want to immediately see today's habits
+
+so I can quickly complete them.
+
+Acceptance Criteria
+
+* Loads under 2 seconds.
+* Displays today's habits.
+* Shows progress bar.
+* Shows streak.
+
+---
+
+## Create Habit
+
+Acceptance Criteria
+
+* User enters habit details.
+* Habit appears immediately.
+* Data saved locally.
+* Validation prevents empty names.
+
+---
+
+## Complete Habit
+
+Acceptance Criteria
+
+* One tap completion.
+* Updates statistics instantly.
+* Updates streak.
+* Plays completion animation.
+
+---
+
+## Statistics
+
+Acceptance Criteria
+
+Automatically updates after every completion.
+
+---
+
+## Calendar
+
+Acceptance Criteria
+
+Shows completion history.
+
+---
+
+## Reminder
+
+Acceptance Criteria
+
+Browser notification appears at scheduled time (if permission is granted).
+
+---
+
+# 8. Non-Functional Requirements
+
+### Performance
+
+* Initial load <2 seconds
+* Offline support
+* Smooth animations
+* Responsive UI
+
+---
+
+### Accessibility
+
+* Keyboard accessible
+* High color contrast
+* Screen reader friendly
+* Touch-friendly buttons (minimum 44×44 px)
+
+---
+
+### Security
+
+Since there are no accounts:
+
+* No authentication
+* No personal information stored
+* Local database only
+* HTTPS when deployed
+
+---
+
+# 9. Technical Stack
+
+## Frontend
+
+* Next.js 15
+* React
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* Framer Motion
+
+## Backend
+
+* ASP.NET Core 9 Web API
+
+## Database
+
+* SQLite
+
+## Storage
+
+Local browser storage for preferences, SQLite for application data.
+
+## Deployment
+
+Frontend
+
+* Vercel
+
+Backend
+
+* Azure App Service or Railway
+
+Database
+
+* SQLite file
+
+---
+
+# 10. User Flow
+
+```text
+Open App
+
+↓
+
+Dashboard
+
+↓
+
+Today's Habits
+
+↓
+
+Complete Habit
+
+↓
+
+XP Earned
+
+↓
+
+Forest Grows
+
+↓
+
+Statistics Updated
+
+↓
+
+Return Tomorrow
+```
+
+---
+
+# 11. Screen List
+
+1. Splash
+2. Dashboard
+3. Add Habit
+4. Edit Habit
+5. Habit Detail
+6. Statistics
+7. Calendar
+8. Reflections
+9. Settings
+
+---
+
+# 12. Database Schema
+
+## Habits
+
+| Column        | Type     |
+| ------------- | -------- |
+| Id            | Guid     |
+| Name          | Text     |
+| TinyHabit     | Text     |
+| Identity      | Text     |
+| Why           | Text     |
+| Icon          | Text     |
+| Color         | Text     |
+| ReminderTime  | Time     |
+| RepeatPattern | Text     |
+| CreatedAt     | DateTime |
+| IsArchived    | Boolean  |
+
+---
+
+## HabitEntries
+
+| Column  | Type                   |
+| ------- | ---------------------- |
+| Id      | Guid                   |
+| HabitId | Guid                   |
+| Date    | Date                   |
+| Status  | Complete / Skip / Miss |
+| Notes   | Text                   |
+
+---
+
+## Reflections
+
+| Column   | Type |
+| -------- | ---- |
+| Id       | Guid |
+| Date     | Date |
+| Question | Text |
+| Answer   | Text |
+
+---
+
+# 13. Design Principles
+
+* Mobile-first
+* Minimalist
+* Calm colors
+* Large tap targets
+* One-handed usage
+* Few taps to complete a habit
+* Consistency over decoration
+
+---
+
+# 14. Future Roadmap (V2)
+
+* Cross-device sync
+* Google login
+* AI habit coach
+* Smart habit suggestions
+* Home screen widgets
+* Advanced analytics
+* Habit templates
+* Community challenges
+* Shared accountability
+* Cloud backup
+
+---
+
+# 15. MVP Definition
+
+The product is considered **MVP complete** when a user can:
+
+* Create habits
+* Edit habits
+* Delete or archive habits
+* Mark habits complete
+* Track streaks
+* View statistics
+* Browse history in a calendar
+* Receive reminders
+* Read daily habit tips
+* Use the app offline
+* Install it as a PWA
+* Export and import their data
+
+---
+
+# 16. Future Vision
+
+HabitBloom should feel less like a checklist and more like a quiet companion that reinforces positive routines. Every interaction should reduce friction, encourage consistency, and remind users that missing once is a setback, not a failure. If it eventually grows into a public product, the foundation should already support scaling without requiring a complete rewrite.
