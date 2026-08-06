@@ -95,6 +95,14 @@ export function HabitDetail() {
               <p className="text-foreground/80">{habit.why}</p>
             </div>
           )}
+          {habit.anchorHabitId && data.habits[habit.anchorHabitId] && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2 tracking-wide uppercase">Stacked On</h3>
+              <p className="text-foreground/80 font-serif italic">
+                "After I {data.habits[habit.anchorHabitId].tinyHabit.toLowerCase()}, I will {habit.tinyHabit.toLowerCase()}."
+              </p>
+            </div>
+          )}
         </section>
 
         <div className="grid grid-cols-2 gap-4 mb-6">

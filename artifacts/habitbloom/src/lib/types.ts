@@ -12,6 +12,7 @@ export interface Habit {
   reminderTime?: string; // HH:mm
   createdAt: string; // ISO string
   isArchived: boolean;
+  anchorHabitId?: string; // habit stacking: "After I [anchor], I will [this habit]"
 }
 
 export interface HabitEntry {

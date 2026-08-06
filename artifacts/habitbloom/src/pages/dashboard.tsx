@@ -130,6 +130,12 @@ export function Dashboard() {
                             {habit.name}
                           </h3>
                           <p className="text-sm text-muted-foreground">{habit.tinyHabit}</p>
+                          {habit.anchorHabitId && data.habits[habit.anchorHabitId] && (
+                            <p className="text-xs text-muted-foreground/70 mt-0.5 flex items-center gap-1">
+                              <LucideIcons.Link2 className="w-3 h-3" />
+                              After {data.habits[habit.anchorHabitId].name}
+                            </p>
+                          )}
                         </div>
                       </Link>
 

@@ -38,6 +38,11 @@ export function AddEditHabit() {
   const [why, setWhy] = useState('');
   const [schedule, setSchedule] = useState<string[]>(DAYS);
   const [reminder, setReminder] = useState('');
+  const [anchorHabitId, setAnchorHabitId] = useState<string>('');
+
+  const existingHabits = Object.values(data.habits).filter(
+    (h) => !h.isArchived && h.id !== id,
+  );
 
   useEffect(() => {
     if (isEditing && data.habits[id]) {
@@ -50,6 +55,7 @@ export function AddEditHabit() {
       setWhy(h.why || '');
       setSchedule(h.repeatSchedule);
       setReminder(h.reminderTime || '');
+      setAnchorHabitId(h.anchorHabitId || '');
     }
   }, [id, isEditing, data.habits]);
 
@@ -58,18 +64,22 @@ export function AddEditHabit() {
 
     if (isEditing) {
       updateHabit(id!, {
-        name, icon, color, tinyHabit, identityGoal, why, repeatSchedule: schedule, reminderTime: reminder || undefined
+        name, icon, color, tinyHabit, identityGoal, why, repeatSchedule: schedule, reminderTime: reminder || undefined,
+        anchorHabitId: anchorHabitId || undefined,
       });
     } else {
       addHabit({
         id: `habit_${Date.now()}`,
         name, icon, color, tinyHabit, identityGoal, why, repeatSchedule: schedule, reminderTime: reminder || undefined,
+        anchorHabitId: anchorHabitId || undefined,
         createdAt: new Date().toISOString(),
         isArchived: false,
       });
     }
-    setLocation(-1); // go back
+    window.history.back();
   };
+
+  const anchorHabit = anchorHabitId ? data.habits[anchorHabitId] : undefined;
 
   const toggleDay = (day: string) => {
     setSchedule(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
@@ -80,7 +90,7 @@ export function AddEditHabit() {
   return (
     <div className="min-h-[100dvh] bg-background max-w-md mx-auto flex flex-col relative animate-slide-up">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border flex items-center justify-between p-4 pt-safe-top">
-        <button onClick={() => setLocation(-1)} className="p-2 -ml-2 text-foreground active:scale-95 transition-transform">
+        <button onClick={() => window.history.back()} className="p-2 -ml-2 text-foreground active:scale-95 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-xl font-serif font-bold">{isEditing ? 'Edit Habit' : 'Plant a Habit'}</h1>
@@ -170,6 +180,41 @@ export function AddEditHabit() {
             })}
           </div>
         </section>
+
+        {existingHabits.length > 0 && (
+          <section className="space-y-3">
+            <div>
+              <label className="block text-sm font-semibold text-muted-foreground tracking-wide uppercase">Stack It (Optional)</label>
+              <p className="text-xs text-muted-foreground mt-1">Attach this habit to one you already do, so it rides along automatically.</p>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 snap-x">
+              <button
+                onClick={() => setAnchorHabitId('')}
+                className={`flex-shrink-0 snap-center px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+                  !anchorHabitId ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border'
+                }`}
+              >
+                No anchor
+              </button>
+              {existingHabits.map((h) => (
+                <button
+                  key={h.id}
+                  onClick={() => setAnchorHabitId(h.id)}
+                  className={`flex-shrink-0 snap-center flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
+                    anchorHabitId === h.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border'
+                  }`}
+                >
+                  {h.name}
+                </button>
+              ))}
+            </div>
+            {anchorHabit && (
+              <p className="text-sm font-serif italic text-foreground/80 bg-secondary/30 rounded-xl px-4 py-3">
+                "After I {anchorHabit.tinyHabit.toLowerCase()}, I will {(tinyHabit || 'do this habit').toLowerCase()}."
+              </p>
+            )}
+          </section>
+        )}
 
         <section className="space-y-4">
           <label className="block text-sm font-semibold text-muted-foreground tracking-wide uppercase">Schedule</label>
