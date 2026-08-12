@@ -16,8 +16,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   ];
 
   return (
-    <div className="flex flex-col min-h-[100dvh] max-w-md mx-auto bg-background shadow-2xl relative overflow-hidden">
-      <main className="flex-1 overflow-y-auto pb-24 safe-top">
+    <div className="flex flex-col min-h-dvh max-w-md mx-auto bg-background shadow-2xl relative overflow-hidden">
+      <main className="flex-1 overflow-y-auto pb-28 safe-top">
         {children}
       </main>
       

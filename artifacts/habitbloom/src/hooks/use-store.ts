@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { loadData, saveData, StorageData } from '../lib/storage';
+import { loadData, saveData, validateImport, StorageData, STORAGE_KEY } from '../lib/storage';
 import { Habit, HabitEntry, Reflection, AppState } from '../lib/types';
 import { format } from 'date-fns';
 
@@ -14,9 +14,18 @@ export function useStore() {
       setData(memoryState);
     };
 
+    const handleCrossTabChange = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY || event.key === null) {
+        memoryState = loadData();
+        setData(memoryState);
+      }
+    };
+
     window.addEventListener('habitbloom_data_changed', handleStorageChange);
+    window.addEventListener('storage', handleCrossTabChange);
     return () => {
       window.removeEventListener('habitbloom_data_changed', handleStorageChange);
+      window.removeEventListener('storage', handleCrossTabChange);
     };
   }, []);
 
@@ -51,7 +60,15 @@ export function useStore() {
   const deleteHabit = useCallback((id: string) => {
     const newHabits = { ...memoryState.habits };
     delete newHabits[id];
-    
+
+    // Habits stacked onto the deleted one lose their anchor so no dead
+    // references survive in storage or in exported backups.
+    for (const otherId in newHabits) {
+      if (newHabits[otherId].anchorHabitId === id) {
+        newHabits[otherId] = { ...newHabits[otherId], anchorHabitId: undefined };
+      }
+    }
+
     // Also cleanup entries? We might want to keep them for history or delete. Let's delete.
     const newEntries = { ...memoryState.entries };
     for (const entryId in newEntries) {
@@ -105,14 +122,12 @@ export function useStore() {
     saveData(empty);
   }, []);
 
-  const importData = useCallback((importedData: any) => {
-    // Basic validation
-    if (importedData && importedData.habits && importedData.entries) {
-      memoryState = importedData;
-      saveData(memoryState);
-      return true;
-    }
-    return false;
+  const importData = useCallback((importedData: unknown) => {
+    const validated = validateImport(importedData);
+    if (!validated) return false;
+    memoryState = validated;
+    saveData(memoryState);
+    return true;
   }, []);
 
   return {

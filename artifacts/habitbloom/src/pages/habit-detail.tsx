@@ -1,15 +1,15 @@
 import { useLocation, useParams } from 'wouter';
 import { useStore } from '../hooks/use-store';
 import { AppLayout } from '../components/layout/app-layout';
-import { ArrowLeft, Edit2, Check, X, Minus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit2, Check, X, Minus, Trash2, Archive, ArchiveRestore } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import { format, subDays, isSameDay } from 'date-fns';
+import { format, subDays, isSameDay, startOfDay } from 'date-fns';
 
 export function HabitDetail() {
   const [location, setLocation] = useLocation();
   const params = useParams();
   const id = params.id!;
-  const { data, deleteHabit } = useStore();
+  const { data, deleteHabit, updateHabit } = useStore();
 
   const habit = data.habits[id];
   
@@ -57,20 +57,29 @@ export function HabitDetail() {
     }
   };
 
+  const handleArchive = () => {
+    updateHabit(id, { isArchived: !habit.isArchived });
+    setLocation('/');
+  };
+
   // Generate last 28 days for a mini heatmap
   const heatmapDays = Array.from({length: 28}, (_, i) => subDays(new Date(), 27 - i));
+  const createdDay = startOfDay(new Date(habit.createdAt));
 
   return (
     <AppLayout>
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md flex items-center justify-between p-4 pt-safe-top">
-        <button onClick={() => setLocation('/')} className="p-2 -ml-2 text-foreground active:scale-95 transition-transform">
+        <button onClick={() => setLocation('/')} className="p-2.5 -ml-2.5 text-foreground active:scale-95 transition-transform" aria-label="Back">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="flex gap-2">
-          <button onClick={() => setLocation(`/habit/${id}/edit`)} className="p-2 text-muted-foreground hover:text-primary transition-colors">
+          <button onClick={handleArchive} className="p-2.5 text-muted-foreground hover:text-primary transition-colors" aria-label={habit.isArchived ? 'Restore habit' : 'Archive habit'} title={habit.isArchived ? 'Restore to your list' : 'Archive this habit'}>
+            {habit.isArchived ? <ArchiveRestore className="w-5 h-5" /> : <Archive className="w-5 h-5" />}
+          </button>
+          <button onClick={() => setLocation(`/habit/${id}/edit`)} className="p-2.5 text-muted-foreground hover:text-primary transition-colors" aria-label="Edit habit">
             <Edit2 className="w-5 h-5" />
           </button>
-          <button onClick={handleDelete} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
+          <button onClick={handleDelete} className="p-2.5 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete habit">
             <Trash2 className="w-5 h-5" />
           </button>
         </div>
@@ -128,7 +137,7 @@ export function HabitDetail() {
               if (entry?.status === 'complete') bgColor = 'bg-primary';
               else if (entry?.status === 'miss') bgColor = 'bg-destructive/60';
               else if (entry?.status === 'skip') bgColor = 'bg-secondary';
-              else if (isScheduled && date < new Date()) bgColor = 'bg-destructive/20'; // missed implicitly
+              else if (isScheduled && date >= createdDay && date < new Date()) bgColor = 'bg-destructive/20'; // missed implicitly
 
               return (
                 <div 
@@ -138,7 +147,7 @@ export function HabitDetail() {
                 >
                   {entry?.status === 'complete' && <Check className="w-3 h-3" />}
                   {entry?.status === 'skip' && <Minus className="w-3 h-3" />}
-                  {(entry?.status === 'miss' || (isScheduled && date < new Date() && !entry)) && <X className="w-3 h-3" />}
+                  {(entry?.status === 'miss' || (isScheduled && date >= createdDay && date < new Date() && !entry)) && <X className="w-3 h-3" />}
                 </div>
               );
             })}

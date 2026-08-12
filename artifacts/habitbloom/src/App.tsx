@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 
 function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100dvh] text-center p-6 bg-background max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center min-h-dvh text-center p-6 bg-background max-w-md mx-auto">
       <h1 className="text-4xl font-serif font-bold mb-4">404</h1>
       <p className="text-muted-foreground mb-8">This path leads nowhere.</p>
       <Link href="/" className="text-primary font-semibold underline underline-offset-4">Return home</Link>

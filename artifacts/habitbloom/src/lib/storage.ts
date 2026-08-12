@@ -1,7 +1,7 @@
 import { Habit, HabitEntry, Reflection, AppState } from './types';
 import { format, subDays, isSameDay } from 'date-fns';
 
-const STORAGE_KEY = 'habitbloom_data';
+export const STORAGE_KEY = 'habitbloom_data';
 
 export interface StorageData {
   habits: Record<string, Habit>;
@@ -149,4 +149,82 @@ export function saveData(data: StorageData) {
   } catch (e) {
     console.error('Failed to save data', e);
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+// Validates an imported backup and merges it with defaults so malformed or
+// partial files can never crash the app. Returns null if the file is unfit.
+export function validateImport(raw: unknown): StorageData | null {
+  if (!isRecord(raw)) return null;
+
+  const out: StorageData = {
+    habits: {},
+    entries: {},
+    reflections: {},
+    appState: { ...defaultAppState },
+  };
+
+  if (!isRecord(raw.habits) || !isRecord(raw.entries) || !isRecord(raw.reflections)) {
+    return null;
+  }
+
+  for (const [id, habit] of Object.entries(raw.habits)) {
+    if (!isRecord(habit)) return null;
+    if (
+      !isString(habit.name) ||
+      !isString(habit.icon) ||
+      !isString(habit.color) ||
+      !isString(habit.tinyHabit) ||
+      !isString(habit.identityGoal) ||
+      !isString(habit.createdAt) ||
+      typeof habit.isArchived !== 'boolean' ||
+      !Array.isArray(habit.repeatSchedule) ||
+      !habit.repeatSchedule.every(isString)
+    ) {
+      return null;
+    }
+    out.habits[id] = habit as unknown as Habit;
+  }
+
+  for (const [id, entry] of Object.entries(raw.entries)) {
+    if (!isRecord(entry)) return null;
+    if (
+      !isString(entry.habitId) ||
+      !isString(entry.date) ||
+      (entry.status !== 'complete' && entry.status !== 'skip' && entry.status !== 'miss') ||
+      (entry.notes !== undefined && !isString(entry.notes))
+    ) {
+      return null;
+    }
+    out.entries[id] = entry as unknown as HabitEntry;
+  }
+
+  for (const [id, reflection] of Object.entries(raw.reflections)) {
+    if (!isRecord(reflection)) return null;
+    if (!isString(reflection.question) || !isString(reflection.answer)) {
+      return null;
+    }
+    out.reflections[id] = reflection as unknown as Reflection;
+  }
+
+  if (isRecord(raw.appState)) {
+    if (typeof raw.appState.hasSeenSplash === 'boolean') {
+      out.appState.hasSeenSplash = raw.appState.hasSeenSplash;
+    }
+    if (raw.appState.theme === 'light' || raw.appState.theme === 'dark') {
+      out.appState.theme = raw.appState.theme;
+    }
+    if (typeof raw.appState.remindersEnabled === 'boolean') {
+      out.appState.remindersEnabled = raw.appState.remindersEnabled;
+    }
+  }
+
+  return out;
 }

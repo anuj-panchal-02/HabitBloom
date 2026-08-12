@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -139,6 +138,20 @@
   .safe-top {
     padding-top: env(safe-area-inset-top, 20px);
   }
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top, 20px);
+  }
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .min-h-dvh {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
 }
 
 /* Animations */
@@ -159,6 +172,35 @@
 
 .animate-pop {
   animation: pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes burst {
+  0% { transform: scale(1); opacity: 0.9; }
+  40% { transform: scale(1.03); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.animate-burst {
+  animation: burst 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes forest-grow {
+  0% { transform: scale(0.65); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-forest-grow {
+  animation: forest-grow 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes forest-wilt {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.85); opacity: 0.6; }
+}
+
+.animate-forest-wilt {
+  animation: forest-wilt 0.4s ease-in forwards;
 }
 
 @keyframes draw {

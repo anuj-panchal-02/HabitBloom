@@ -1,12 +1,15 @@
 import { useRef } from 'react';
 import { useStore } from '../hooks/use-store';
 import { AppLayout } from '../components/layout/app-layout';
-import { Moon, Sun, Bell, Download, Upload, Trash2 } from 'lucide-react';
+import { Moon, Sun, Bell, Download, Upload, Trash2, ArchiveRestore } from 'lucide-react';
 import { format } from 'date-fns';
+import { getHabitIcon } from '../lib/icons';
 
 export function SettingsView() {
-  const { data, setAppState, resetAllData, importData } = useStore();
+  const { data, setAppState, resetAllData, importData, updateHabit, deleteHabit } = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const archivedHabits = Object.values(data.habits).filter(h => h.isArchived);
 
   const toggleTheme = () => {
     const newTheme = data.appState.theme === 'light' ? 'dark' : 'light';
@@ -144,6 +147,55 @@ export function SettingsView() {
               <div className="text-xs text-muted-foreground">Restore from a previous JSON file</div>
             </div>
           </button>
+        </section>
+
+        <section className="space-y-4 mb-8">
+          <h2 className="text-sm font-semibold text-muted-foreground tracking-wide uppercase px-2">Archived Seeds</h2>
+
+          {archivedHabits.length === 0 ? (
+            <p className="text-sm text-muted-foreground bg-card rounded-2xl p-4 shadow-sm border border-card-border">
+              Nothing archived — habits you tuck away appear here.
+            </p>
+          ) : (
+            archivedHabits.map((h) => {
+              const Icon = getHabitIcon(h.icon);
+              return (
+                <div key={h.id} className="w-full bg-card rounded-2xl p-4 shadow-sm border border-card-border flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white flex-shrink-0" style={{ backgroundColor: h.color }}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-foreground truncate">{h.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">{h.tinyHabit}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => updateHabit(h.id, { isArchived: false })}
+                      aria-label={`Restore ${h.name}`}
+                      title="Restore"
+                      className="p-2.5 text-primary active:scale-95 transition-transform"
+                    >
+                      <ArchiveRestore className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Uproot "${h.name}"? All history will be lost.`)) {
+                          deleteHabit(h.id);
+                        }
+                      }}
+                      aria-label={`Delete ${h.name}`}
+                      title="Delete forever"
+                      className="p-2.5 text-destructive active:scale-95 transition-transform"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </section>
 
         <section className="space-y-4 pt-4 border-t border-border">

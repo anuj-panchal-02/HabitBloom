@@ -40,9 +40,21 @@ export function AddEditHabit() {
   const [reminder, setReminder] = useState('');
   const [anchorHabitId, setAnchorHabitId] = useState<string>('');
 
-  const existingHabits = Object.values(data.habits).filter(
-    (h) => !h.isArchived && h.id !== id,
-  );
+  const existingHabits = Object.values(data.habits).filter((h) => {
+    if (h.isArchived || h.id === id) return false;
+    // Exclude candidates whose anchor chain leads back to this habit, which
+    // would create a circular stack (A -> B -> A). Cycles are impossible
+    // going forward, but old backups may still contain them, so guard the walk.
+    const seen = new Set<string>();
+    let current: string | undefined = h.id;
+    while (current) {
+      if (current === id) return false;
+      if (seen.has(current)) break;
+      seen.add(current);
+      current = data.habits[current]?.anchorHabitId;
+    }
+    return true;
+  });
 
   useEffect(() => {
     if (isEditing && data.habits[id]) {
@@ -55,7 +67,10 @@ export function AddEditHabit() {
       setWhy(h.why || '');
       setSchedule(h.repeatSchedule);
       setReminder(h.reminderTime || '');
-      setAnchorHabitId(h.anchorHabitId || '');
+      // Clear stale anchors that no longer exist (e.g. from imported backups).
+      setAnchorHabitId(
+        h.anchorHabitId && data.habits[h.anchorHabitId] ? h.anchorHabitId : '',
+      );
     }
   }, [id, isEditing, data.habits]);
 
@@ -76,7 +91,7 @@ export function AddEditHabit() {
         isArchived: false,
       });
     }
-    window.history.back();
+    setLocation('/');
   };
 
   const anchorHabit = anchorHabitId ? data.habits[anchorHabitId] : undefined;
@@ -88,16 +103,16 @@ export function AddEditHabit() {
   const IconComp = (LucideIcons as any)[icon] || Circle;
 
   return (
-    <div className="min-h-[100dvh] bg-background max-w-md mx-auto flex flex-col relative animate-slide-up">
+    <div className="min-h-dvh bg-background max-w-md mx-auto flex flex-col relative animate-slide-up">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border flex items-center justify-between p-4 pt-safe-top">
-        <button onClick={() => window.history.back()} className="p-2 -ml-2 text-foreground active:scale-95 transition-transform">
+        <button onClick={() => setLocation('/')} className="p-2.5 -ml-2.5 text-foreground active:scale-95 transition-transform" aria-label="Back">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-xl font-serif font-bold">{isEditing ? 'Edit Habit' : 'Plant a Habit'}</h1>
         <button 
           onClick={handleSave}
           disabled={!name || !tinyHabit || !identityGoal || schedule.length === 0}
-          className="p-2 -mr-2 text-primary font-semibold disabled:opacity-50 active:scale-95 transition-transform"
+          className="p-2.5 -mr-2.5 text-primary font-semibold disabled:opacity-50 active:scale-95 transition-transform"
         >
           Save
         </button>

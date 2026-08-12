@@ -2,12 +2,12 @@ import { useState, useMemo } from 'react';
 import { useStore } from '../hooks/use-store';
 import { AppLayout } from '../components/layout/app-layout';
 import { format, subDays, isSameDay } from 'date-fns';
-import { getOverallStreak, getHabitsForDay, getEntryForHabitAndDay } from '../lib/stats';
-import { Check, X, Minus } from 'lucide-react';
+import { getOverallStreak, getHabitsForDay, getEntryForHabitAndDay, cycleStatus, getCompletionRate } from '../lib/stats';
+import { Check, X, Minus, FileText } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
 export function CalendarView() {
-  const { data } = useStore();
+  const { data, setEntry, removeEntry } = useStore();
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
@@ -53,9 +53,13 @@ export function CalendarView() {
         }
       }
 
-      if (allDone && (anyDone || !isSameDay(d, today))) {
-        current++;
-        if (current > longest) longest = current;
+      if (allDone) {
+        // All-skip days are an intentional rest for the streak: they don't
+        // add to it but don't break it either (matches getOverallStreak).
+        if (anyDone) {
+          current++;
+          if (current > longest) longest = current;
+        }
       } else {
         current = 0;
       }
@@ -64,12 +68,41 @@ export function CalendarView() {
     return {
       longestStreak: longest,
       completionRate: totalScheduled > 0 ? Math.round((totalCompleted / totalScheduled) * 100) : 0,
-      totalCompleted
+      totalCompleted,
+      weekRate: getCompletionRate(habitsList, entriesList, 7),
+      monthRate: getCompletionRate(habitsList, entriesList, 30),
     };
   }, [habitsList, entriesList, today]);
 
   // Data for selected day
   const selectedHabits = getHabitsForDay(habitsList, selectedDate);
+
+  const handleCycle = (habitId: string) => {
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const current = getEntryForHabitAndDay(entriesList, habitId, selectedDate)?.status;
+    const next = cycleStatus(current);
+    if (next) {
+      setEntry({ id: `${habitId}_${dateStr}`, habitId, date: dateStr, status: next });
+    } else {
+      removeEntry(`${habitId}_${dateStr}`);
+    }
+  };
+
+  const [noteEntryId, setNoteEntryId] = useState<string | null>(null);
+  const [noteDraft, setNoteDraft] = useState('');
+
+  const toggleNote = (entryId: string, notes?: string) => {
+    setNoteEntryId(prev => (prev === entryId ? null : entryId));
+    setNoteDraft(notes ?? '');
+  };
+
+  const handleSaveNote = (habitId: string, dateStr: string) => {
+    const existing = getEntryForHabitAndDay(entriesList, habitId, selectedDate);
+    if (!existing) return;
+    const trimmed = noteDraft.trim();
+    setEntry({ ...existing, notes: trimmed || undefined });
+    setNoteEntryId(null);
+  };
 
   // Split into Weeks for Heatmap (7 rows, N cols)
   // To render vertically (rows = days of week), we need to group by week
@@ -103,12 +136,20 @@ export function CalendarView() {
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Longest Streak</span>
           </div>
           <div className="bg-card rounded-3xl p-5 shadow-sm border border-card-border flex flex-col justify-center">
+            <span className="text-3xl font-bold font-serif mb-1 text-primary">{stats.weekRate}%</span>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">This Week</span>
+          </div>
+          <div className="bg-card rounded-3xl p-5 shadow-sm border border-card-border flex flex-col justify-center">
+            <span className="text-3xl font-bold font-serif mb-1 text-primary">{stats.monthRate}%</span>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">This Month</span>
+          </div>
+          <div className="bg-card rounded-3xl p-5 shadow-sm border border-card-border flex flex-col justify-center">
             <span className="text-3xl font-bold font-serif mb-1 text-foreground">{stats.completionRate}%</span>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Completion</span>
           </div>
           <div className="bg-card rounded-3xl p-5 shadow-sm border border-card-border flex flex-col justify-center">
             <span className="text-3xl font-bold font-serif mb-1 text-foreground">{stats.totalCompleted}</span>
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total Habits</span>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Habits Completed</span>
           </div>
         </div>
 
@@ -181,18 +222,48 @@ export function CalendarView() {
                 }
 
                 return (
-                  <div key={habit.id} className="bg-card rounded-2xl p-4 shadow-sm border border-card-border flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${statusColor}`}>
-                        <IconComponent className="w-5 h-5" />
+                  <div key={habit.id} className="bg-card rounded-2xl p-4 shadow-sm border border-card-border">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${statusColor}`}>
+                          <IconComponent className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className={`font-semibold ${isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{habit.name}</h3>
+                          {entry?.notes && (
+                            <p className="text-xs text-muted-foreground italic mt-0.5">{entry.notes}</p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h3 className={`font-semibold ${isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'}`}>{habit.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleNote(entry?.id ?? '', entry?.notes)}
+                          disabled={!entry}
+                          title={entry ? 'Add or edit a note' : 'Record a status first'}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center border border-card-border text-muted-foreground active:scale-95 transition-transform ${entry ? '' : 'opacity-40'} ${noteEntryId === entry?.id ? 'bg-primary/10 text-primary' : ''}`}
+                        >
+                          <FileText className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleCycle(habit.id)}
+                          title="Tap to change status (complete → skip → missed → clear)"
+                          className={`w-8 h-8 rounded-full flex items-center justify-center ${statusColor} active:scale-95 transition-transform`}
+                        >
+                          <StatusIcon className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${statusColor}`}>
-                      <StatusIcon className="w-4 h-4" />
-                    </div>
+                    {noteEntryId === entry?.id && (
+                      <textarea
+                        value={noteDraft}
+                        onChange={e => setNoteDraft(e.target.value)}
+                        onBlur={() => handleSaveNote(habit.id, format(selectedDate, 'yyyy-MM-dd'))}
+                        placeholder="Tap to write a note…"
+                        autoFocus
+                        className="w-full mt-3 bg-input/50 border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                        rows={2}
+                      />
+                    )}
                   </div>
                 );
               })}

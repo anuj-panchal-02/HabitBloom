@@ -12,7 +12,7 @@ export function Splash() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100dvh] px-6 text-center animate-slide-up bg-background max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center min-h-dvh px-6 text-center animate-slide-up bg-background max-w-md mx-auto">
       <div className="flex items-center justify-center w-24 h-24 rounded-full bg-primary/10 text-primary mb-8 animate-pop">
         <Leaf className="w-12 h-12" />
       </div>
