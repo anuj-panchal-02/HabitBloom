@@ -1,7 +1,7 @@
 // HabitBloom service worker — enables offline use and installability.
 // Bump CACHE_VERSION whenever the app shell changes shape so old caches are dropped.
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `habitbloom-${CACHE_VERSION}`;
 
 // Derive the cache namespace and shell paths from the registration scope so

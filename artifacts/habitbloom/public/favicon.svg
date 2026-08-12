@@ -1,3 +1,44 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="16" x2="156" y2="164" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#173523"/>
+      <stop offset="1" stop-color="#1f3a2a"/>
+    </linearGradient>
+    <linearGradient id="leaf-left" x1="48" y1="52" x2="92" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#749c81"/>
+      <stop offset="1" stop-color="#558f62"/>
+    </linearGradient>
+    <linearGradient id="leaf-right" x1="88" y1="44" x2="132" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8d9c8c"/>
+      <stop offset="1" stop-color="#6b8f72"/>
+    </linearGradient>
+  </defs>
+
+  <!-- App icon background -->
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+
+  <!-- Soft ground -->
+  <ellipse cx="90" cy="128" rx="34" ry="8" fill="#558f62" fill-opacity="0.22"/>
+
+  <!-- Stem -->
+  <path
+    d="M90 118 C90 102 90 88 90 74"
+    stroke="#a8c4ad"
+    stroke-width="7"
+    stroke-linecap="round"
+  />
+
+  <!-- Leaves -->
+  <path
+    d="M90 92 C62 84 50 66 48 50 C68 68 82 82 90 92Z"
+    fill="url(#leaf-left)"
+  />
+  <path
+    d="M90 82 C118 72 132 56 134 40 C114 58 100 74 90 82Z"
+    fill="url(#leaf-right)"
+  />
+
+  <!-- Bloom -->
+  <circle cx="90" cy="58" r="10" fill="#c5a059"/>
+  <circle cx="87" cy="55" r="3" fill="#f5e6c8" fill-opacity="0.85"/>
 </svg>
