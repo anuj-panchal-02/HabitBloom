@@ -27,13 +27,14 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - name: Enable pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
+      - name: Install pnpm
+        run: npm i -g pnpm@9
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      
+      - name: Verify pnpm
+        run: pnpm -v
 
       - name: Build for GitHub Pages sub-path
         env:
