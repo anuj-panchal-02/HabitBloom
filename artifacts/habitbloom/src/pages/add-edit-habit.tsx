@@ -3,6 +3,7 @@ import { useStore } from '../hooks/use-store';
 import { useLocation, useParams } from 'wouter';
 import { ArrowLeft, Check, Circle } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import { formatStackSentence } from '../lib/atomic-habits';
 
 const COLORS = [
   '#558f62', // Sage
@@ -225,7 +226,7 @@ export function AddEditHabit() {
             </div>
             {anchorHabit && (
               <p className="text-sm font-serif italic text-foreground/80 bg-secondary/30 rounded-xl px-4 py-3">
-                "After I {anchorHabit.tinyHabit.toLowerCase()}, I will {(tinyHabit || 'do this habit').toLowerCase()}."
+                &ldquo;{formatStackSentence(anchorHabit, { tinyHabit: tinyHabit || 'do this habit' })}&rdquo;
               </p>
             )}
           </section>

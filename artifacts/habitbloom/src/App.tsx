@@ -13,6 +13,7 @@ import { HabitDetail } from './pages/habit-detail';
 import { CalendarView } from './pages/calendar';
 import { Reflections } from './pages/reflections';
 import { SettingsView } from './pages/settings';
+import { Toaster } from './components/ui/sonner';
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ function App() {
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
         <Router />
       </WouterRouter>
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }

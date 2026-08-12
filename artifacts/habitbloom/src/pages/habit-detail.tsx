@@ -4,6 +4,7 @@ import { AppLayout } from '../components/layout/app-layout';
 import { ArrowLeft, Edit2, Check, X, Minus, Trash2, Archive, ArchiveRestore } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { format, subDays, isSameDay, startOfDay } from 'date-fns';
+import { formatStackSentence } from '../lib/atomic-habits';
 
 export function HabitDetail() {
   const [location, setLocation] = useLocation();
@@ -108,7 +109,7 @@ export function HabitDetail() {
             <div className="mt-4 pt-4 border-t border-border">
               <h3 className="text-sm font-semibold text-muted-foreground mb-2 tracking-wide uppercase">Stacked On</h3>
               <p className="text-foreground/80 font-serif italic">
-                "After I {data.habits[habit.anchorHabitId].tinyHabit.toLowerCase()}, I will {habit.tinyHabit.toLowerCase()}."
+                &ldquo;{formatStackSentence(data.habits[habit.anchorHabitId], habit)}&rdquo;
               </p>
             </div>
           )}

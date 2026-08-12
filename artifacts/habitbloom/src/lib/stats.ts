@@ -151,3 +151,49 @@ export function getForestStage(effectiveStreak: number): number {
   if (effectiveStreak < 365) return 7;
   return 8;
 }
+
+export interface MissRecoveryState {
+  missedYesterday: boolean;
+  missedHabitIds: string[];
+  isRecoveryDay: boolean;
+}
+
+function isHabitMissedOnDay(
+  habit: Habit,
+  entries: HabitEntry[],
+  date: Date,
+): boolean {
+  const entry = getEntryForHabitAndDay(entries, habit.id, date);
+  if (entry?.status === 'miss') return true;
+  if (entry?.status === 'complete' || entry?.status === 'skip') return false;
+  // A past scheduled day with no entry counts as a miss.
+  return !isSameDay(date, new Date());
+}
+
+export function getMissRecoveryState(
+  habits: Habit[],
+  entries: HabitEntry[],
+  date: Date = new Date(),
+): MissRecoveryState {
+  const today = startOfDay(date);
+  const yesterday = subDays(today, 1);
+  const yesterdayHabits = getHabitsForDay(habits, yesterday);
+  const todayHabits = getHabitsForDay(habits, today);
+
+  const missedHabitIds = yesterdayHabits
+    .filter((habit) => isHabitMissedOnDay(habit, entries, yesterday))
+    .map((habit) => habit.id);
+
+  const missedYesterday = missedHabitIds.length > 0;
+
+  const hasIncompleteToday = todayHabits.some((habit) => {
+    const entry = getEntryForHabitAndDay(entries, habit.id, today);
+    return !entry || entry.status === 'miss';
+  });
+
+  return {
+    missedYesterday,
+    missedHabitIds,
+    isRecoveryDay: missedYesterday && hasIncompleteToday,
+  };
+}
