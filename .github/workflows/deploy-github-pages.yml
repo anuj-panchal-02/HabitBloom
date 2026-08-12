@@ -28,7 +28,9 @@ jobs:
           cache: pnpm
 
       - name: Enable pnpm
-        run: corepack enable
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -46,7 +48,13 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # id-token permissions are set at the workflow level; this is just explicit.
+          token: ${{ secrets.GITHUB_TOKEN }}
 
