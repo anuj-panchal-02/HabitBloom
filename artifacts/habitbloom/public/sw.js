@@ -1,15 +1,20 @@
 // HabitBloom service worker — enables offline use and installability.
 // Bump CACHE_VERSION whenever the app shell changes shape so old caches are dropped.
-const CACHE_VERSION = 'v1';
+
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `habitbloom-${CACHE_VERSION}`;
 
+// Derive the cache namespace and shell paths from the registration scope so
+// the worker works under any BASE_PATH, not just a root deployment.
+const scope = self.registration.scope;
+
+const cacheKey = (path: string) => new URL(path, scope).toString();
+
 const APP_SHELL = [
-  '/',
-  '/manifest.webmanifest',
-  '/favicon.svg',
-  '/icon-192.png',
-  '/icon-512.png',
-];
+  scope,
+  'manifest.webmanifest',
+  'favicon.svg',
+].map(cacheKey);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -50,10 +55,10 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('/', copy));
+          caches.open(CACHE_NAME).then((cache) => cache.put(scope, copy));
           return response;
         })
-        .catch(() => caches.match('/')),
+        .catch(() => caches.match(scope)),
     );
     return;
   }
